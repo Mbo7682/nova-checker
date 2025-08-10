@@ -20,9 +20,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- CONFIG ---
-  const OPENAI_API_KEY = "[OPENAI API KEY]";
-  const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
-  const OPENAI_MODEL = "gpt-4o-mini"; // change if needed/available
+  // OpenAI key is stored on the server via Netlify env var.
+  const OPENAI_FUNCTION = "/.netlify/functions/classify";
 
   function setStatus(msg) { statusEl.textContent = msg; }
 
@@ -101,48 +100,18 @@ document.addEventListener('DOMContentLoaded', () => {
   async function classifyWithOpenAI(ingredientsText) {
     setStatus('Spørger ChatGPT om NOVA…');
 
-    const prompt = `
-Du er en NOVA-klassifikationsassistent.
-Returnér KUN et JSON-objekt:
-{"category":1|2|3|4,"description":"kort sætning på dansk hvorfor."}
-
-Ingrediensliste:
-${ingredientsText}
-`.trim();
-
-    const body = {
-      model: OPENAI_MODEL,
-      messages: [
-        { role: "system", content: "Du klassificerer fødevarer i NOVA 1–4 og svarer kort på dansk." },
-        { role: "user", content: prompt }
-      ],
-      temperature: 0.1
-    };
-
-    const res = await fetch(OPENAI_URL, {
+    const res = await fetch(OPENAI_FUNCTION, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(body)
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: ingredientsText })
     });
 
     if (!res.ok) {
       const txt = await res.text().catch(() => '');
-      throw new Error(`OpenAI HTTP ${res.status}: ${txt}`);
+      throw new Error(`API HTTP ${res.status}: ${txt}`);
     }
 
-    const json = await res.json();
-    const content = json?.choices?.[0]?.message?.content ?? '';
-    const match = content.match(/\{[\s\S]*\}/);
-    if (!match) return { category: null, description: content.trim() || 'Kunne ikke udtrække resultat.' };
-
-    try {
-      return JSON.parse(match[0]);
-    } catch {
-      return { category: null, description: content.trim() };
-    }
+    return await res.json();
   }
 
   processBtn.addEventListener('click', async () => {
