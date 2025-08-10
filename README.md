@@ -8,7 +8,7 @@ NOVA Inspector is a minimal web app that uses optical character recognition (OCR
 - Extract text using [Tesseract.js](https://tesseract.projectnaptha.com/) with Danish and English language support.
 - Send the extracted text to an OpenAI model (default `gpt-4o-mini`) that returns the predicted NOVA category and a short explanation in Danish.
 - Simple UI shows only the final NOVA category and explanation.
-
+ 
 ## Setup
 1. Edit `app.js` and replace `"[OPENAI API KEY]"` with your OpenAI API key.
 2. Open `index.html` in a browser or serve the folder with any static file server.
@@ -17,6 +17,7 @@ NOVA Inspector is a minimal web app that uses optical character recognition (OCR
 1. Click **Vælg foto af ingrediensliste** and choose an image file.
 2. Press **Process** to run OCR and send the text to the OpenAI API.
 3. The predicted NOVA category and explanation appear below the button.
+
 
 ## Notes
 - The app runs entirely in the browser and stores no data on the server.
