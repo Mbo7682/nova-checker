@@ -9,8 +9,9 @@ NOVA Inspector is a minimal web app that uses optical character recognition (OCR
 - Send the extracted text to an OpenAI model (default `gpt-4o-mini`) that returns the predicted NOVA category and a short explanation in Danish.
 
 ## Setup
-1. Edit `app.js` and replace `"[OPENAI API KEY]"` with your OpenAI API key.
-2. Open `index.html` in a browser or serve the folder with any static file server.
+1. Deploy the project to [Netlify](https://www.netlify.com/) or run `netlify dev` locally.
+2. Configure an environment variable `OPENAI_API_KEY` in Netlify containing your OpenAI API key.
+3. Open `index.html` in a browser or serve the folder with any static file server.
 
 ## Usage
 1. Click **Vælg foto af ingrediensliste** and choose an image file.
@@ -19,6 +20,6 @@ NOVA Inspector is a minimal web app that uses optical character recognition (OCR
 4. The predicted NOVA category and explanation appear below the button.
 
 ## Notes
-- The app runs entirely in the browser and stores no data on the server.
+- The OpenAI request is proxied through a Netlify serverless function; the API key is never exposed to the browser.
 - A network connection and valid OpenAI API key are required.
 
