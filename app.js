@@ -128,8 +128,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const text = (await runOCR(dataUrl)).trim();
 
       const nova = await classifyWithOpenAI(text);
+      const emojiMap = { 1: '🥕', 2: '🧂', 3: '🍞', 4: '🏭' };
       const cat = nova.category == null ? 'Ukendt' : `NOVA ${nova.category}`;
-      resultEl.textContent = `${cat} — ${nova.description || ''}`;
+      const emoji = emojiMap[nova.category] || '❓';
+      resultEl.textContent = `${emoji} ${cat} — ${nova.description || ''}`;
       setStatus('Færdig ✔');
     } catch (err) {
       console.error(err);
