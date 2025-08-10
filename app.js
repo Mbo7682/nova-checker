@@ -12,8 +12,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultEl   = document.getElementById('result');
   const statusEl   = document.getElementById('status');
   const processBtn = document.getElementById('processBtn');
+  const progressBar = document.getElementById('progressBar');
+  const progressFill = progressBar?.firstElementChild;
 
-  if (!fileInput || !previewImg || !resultEl || !statusEl || !processBtn) {
+  if (!fileInput || !previewImg || !resultEl || !statusEl || !processBtn || !progressBar) {
     console.error('Missing required DOM elements. Check IDs in index.html.');
     return;
   }
@@ -23,6 +25,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const OPENAI_FUNCTION = "/.netlify/functions/classify";
 
   function setStatus(msg) { statusEl.textContent = msg; }
+
+  function updateProgress(p) {
+    if (!progressBar || !progressFill) return;
+    progressBar.style.display = 'block';
+    progressFill.style.width = `${p}%`;
+  }
+
+  function resetProgress() {
+    if (!progressBar || !progressFill) return;
+    progressFill.style.width = '0%';
+    progressBar.style.display = 'none';
+  }
 
   fileInput.addEventListener('change', async (e) => {
     const file = e.target.files?.[0];
@@ -86,6 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
         logger: (m) => {
           if (m?.status) {
             const p = Math.round((m.progress || 0) * 100);
+            updateProgress(Math.round(p * 0.8));
             setStatus(`OCR: ${m.status} ${p}%`);
           }
         }
@@ -117,6 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
       processBtn.disabled = true;
       setStatus('Forbereder billede…');
       resultEl.textContent = '';
+      updateProgress(0);
 
       const file = fileInput.files?.[0];
       if (!file) {
@@ -126,8 +142,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const dataUrl = await readAndDownscale(file);
       const text = (await runOCR(dataUrl)).trim();
+      updateProgress(80);
 
       const nova = await classifyWithOpenAI(text);
+      updateProgress(100);
       const emojiMap = { 1: '🥕', 2: '🧂', 3: '🍞', 4: '🏭' };
       const cat = nova.category == null ? 'Ukendt' : `NOVA ${nova.category}`;
       const emoji = emojiMap[nova.category] || '❓';
@@ -139,6 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
       resultEl.textContent = 'Der opstod en fejl. Se konsollen for detaljer.';
     } finally {
       processBtn.disabled = false;
+      setTimeout(resetProgress, 500);
     }
   });
 });
