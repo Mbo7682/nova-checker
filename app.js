@@ -9,12 +9,11 @@
 document.addEventListener('DOMContentLoaded', () => {
   const fileInput  = document.getElementById('fileInput');
   const previewImg = document.getElementById('preview');
-  const ocrTextEl  = document.getElementById('ocrText');
   const resultEl   = document.getElementById('result');
   const statusEl   = document.getElementById('status');
   const processBtn = document.getElementById('processBtn');
 
-  if (!fileInput || !previewImg || !ocrTextEl || !resultEl || !statusEl || !processBtn) {
+  if (!fileInput || !previewImg || !resultEl || !statusEl || !processBtn) {
     console.error('Missing required DOM elements. Check IDs in index.html.');
     return;
   }
@@ -29,7 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
   fileInput.addEventListener('change', async (e) => {
     const file = e.target.files?.[0];
     resultEl.textContent = '';
-    ocrTextEl.value = '';
 
     if (!file) {
       previewImg.style.display = 'none';
@@ -150,7 +148,6 @@ ${ingredientsText}
       processBtn.disabled = true;
       setStatus('Forbereder billede…');
       resultEl.textContent = '';
-      ocrTextEl.value = '';
 
       const file = fileInput.files?.[0];
       if (!file) {
@@ -160,7 +157,6 @@ ${ingredientsText}
 
       const dataUrl = await readAndDownscale(file);
       const text = (await runOCR(dataUrl)).trim();
-      ocrTextEl.value = text;
 
       const nova = await classifyWithOpenAI(text);
       const cat = nova.category == null ? 'Ukendt' : `NOVA ${nova.category}`;
